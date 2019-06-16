@@ -9,9 +9,10 @@ $(function () {
             let oldLength = response;
             console.log(oldLength);
 
-            $.ajax("/scrape", {
+            $.ajax("/api/scrape", {
                 type: "POST"
             }).then(function (response) {
+                
                 $.ajax("/api/reduce", {
                     type: "DELETE"
                 }).then(function (response) {

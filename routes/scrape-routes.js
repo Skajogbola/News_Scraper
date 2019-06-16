@@ -6,29 +6,63 @@ const db = require("../models")
 //Routes
 module.exports = function (app) {
   // Scrape articles
-  app.get("/scrape", function (req, res) {
-    axios.get("https://www.nytimes.com/").then(function (response) {
-      const $ = cheerio.load(response.data);
-      $("article").each(function (i, element) {
-        const result = {};
+  app.post("/api/scrape", function (req, res) {
+    request("http://www.npr.org/sections/news/", function(error, response, html) {
+      const $ = cheerio.load(html);
+      console.log($("article.item").length)
 
-        result.title = $(this).find("h2").text();
-        result.summary = $(this).find("li").text();
-        result.link = $(this).find("a").attr("href");
+      $("article.item").each(function(i, element) {
 
-        //Create a New Article
-        db.Article.create(result)
-          .then(function (dbArticle) {
-            console.log(dbArticle);
+          let title = $(element).find('.item-info').find('.title').find('a').text();
+          let summary = $(element).find('.item-info').find('.teaser').find('a').text();
+          let link = $(element).find('.item-info').find('.title').children().attr("href");
+          let date = $(element).find('.item-info').find('.teaser').find('a').find('time').attr("datetime");
+
+          let articleObject = {
+              title: title,
+              summary: summary, 
+              link: link,
+              photo: photo,
+              date: date
+          }
+
+          db.Article.create(articleObject, function(error) {
+              if (error) console.log("Article already exists: " + articleObject.title)
+              else {
+                  console.log("New article: " + articleObject.title);
+              }
+
+              if (i == ($("article.item").length - 1)) {
+                  res.json("scrape complete")
+              }
           })
-          .catch(function (err) {
-            console.log(err);
-          });
+
       });
-      res.redirect("/")
-      console.log("Scrape Complete");
-    });
-  });
+
+  })
+});
+  //   axios.get("https://www.nytimes.com/").then(function (response) {
+  //     const $ = cheerio.load(response.data);
+  //     $("article").each(function (i, element) {
+  //       const result = {};
+
+  //       result.title = $(this).children("h2").text();
+  //       result.summary = $(this).children(".summary").text();
+  //       result.link = $(this).children("h2").children("a").attr("href");
+
+  //       //Create a New Article
+  //       db.Article.create(result)
+  //         .then(function (dbArticle) {
+  //           console.log(dbArticle);
+  //         })
+  //         .catch(function (err) {
+  //           console.log(err);
+  //         });
+  //     });
+  //     res.redirect("/")
+  //     console.log("Scrape Complete");
+  //   });
+  // });
 
   // Route for getting all Articles from the db
   app.get("/api/all", function (req, res) {
