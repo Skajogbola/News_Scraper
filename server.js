@@ -38,8 +38,9 @@ app.use(express.static("public"));
 // Connect to the Mongo DB
 // If deployed, use the deployed database. Otherwise use the local mongoScraper database
 mongoose.Promise = Promise;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+mongoose.connect(MONGODB_URI);
+// mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Start the server
 app.listen(PORT, function () {
