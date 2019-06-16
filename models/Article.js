@@ -12,8 +12,7 @@ const ArticleSchema = new Schema({
     },
     link: {
         type: String,
-        unique: true,
-        required: true
+        
     },
     date: {
         type: Date
@@ -22,7 +21,6 @@ const ArticleSchema = new Schema({
     saved: {
         type: Boolean,
         default: false,
-        required: true
     },
     // To delete article
     deleted: {
@@ -35,7 +33,6 @@ const ArticleSchema = new Schema({
         {
             type: Schema.Types.ObjectId,
             ref: "Note",
-            required: false
         }
     ]
 });
