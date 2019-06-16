@@ -8,4 +8,4 @@ This application uses Mongo DB and Mongoose to save article and note data, and H
 
 node server.js
 
-The application can also be accessed via the deployed Heroku page:
+The application can also be accessed via the deployed Heroku page: https://polar-scrubland-94556.herokuapp.com/
