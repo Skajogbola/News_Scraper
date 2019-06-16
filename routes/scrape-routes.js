@@ -1,46 +1,76 @@
 // Our scraping tools
 const axios = require("axios");
 const cheerio = require("cheerio");
+const request = require("request");
 const db = require("../models")
 
 //Routes
 module.exports = function (app) {
   // Scrape articles
-  app.post("/api/scrape", function (req, res) {
-    request("http://www.npr.org/sections/news/", function(error, response, html) {
-      const $ = cheerio.load(html);
-      console.log($("article.item").length)
-
-      $("article.item").each(function(i, element) {
-
-          let title = $(element).find('.item-info').find('.title').find('a').text();
-          let summary = $(element).find('.item-info').find('.teaser').find('a').text();
-          let link = $(element).find('.item-info').find('.title').children().attr("href");
-          let date = $(element).find('.item-info').find('.teaser').find('a').find('time').attr("datetime");
-
-          let articleObject = {
-              title: title,
-              summary: summary, 
-              link: link,
-              photo: photo,
-              date: date
+  app.get("/api/scrape", function(req,res){
+    request("https://www.nytimes.com/", function(error,response, html){
+      var $ = cheerio.load(html);
+      $("article").each(function(i,element){
+        var result = {};
+        result.title = $(this).children("h2").text();
+        result.summary = $(this).children(".summary").text();
+        result.link = $(this).children("h2").children("a").attr("href");
+  
+        var entry = new Article(result);
+  
+        entry.save(function(err, doc){
+          if(err){
+            console.log(err);
           }
-
-          db.Article.create(articleObject, function(error) {
-              if (error) console.log("Article already exists: " + articleObject.title)
-              else {
-                  console.log("New article: " + articleObject.title);
-              }
-
-              if (i == ($("article.item").length - 1)) {
-                  res.json("scrape complete")
-              }
-          })
-
+          else{
+            console.log(doc);
+          }
+        });
       });
+      res.redirect("/")
+      res.send("Scrape Complete");
+    });
+  });
 
-  })
-});
+
+//   app.get("/api/scrape", function (req, res) {
+
+//     axios.get("http://www.npr.org/sections/news/").then( function(response) {
+//       const $ = cheerio.load(response.data);
+//       console.log(response.data);
+//       // request("http://www.npr.org/sections/news/", function(error, response, html) {
+//       // const $ = cheerio.load(html);
+//       console.log($("article.item").length)
+
+//       $("article.item").each(function(i, element) {
+
+//           let title = $(element).find('.item-info').find('.headline').find('a').text();
+//           let summary = $(element).find('.item-info').find('.teaser').find('a').text();
+//           let link = $(element).find('.item-info').find('.headline').children().attr("href");
+//           let date = $(element).find('.item-info').find('.teaser').find('a').find('time').attr("datetime");
+
+//           let articleObject = {
+//               title: title,
+//               summary: summary, 
+//               link: link,
+//               date: date
+//           }
+
+//           db.Article.create(articleObject, function(error) {
+//               if (error) console.log("Article already exists: " + articleObject.title)
+//               else {
+//                   console.log("New article: " + articleObject.title);
+//               }
+
+//               if (i == ($("article.item").length - 1)) {
+//                   res.json("scrape complete")
+//               }
+//           })
+
+//       });
+
+//   })
+// });
   //   axios.get("https://www.nytimes.com/").then(function (response) {
   //     const $ = cheerio.load(response.data);
   //     $("article").each(function (i, element) {

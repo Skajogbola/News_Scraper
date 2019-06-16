@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require("morgan");
+var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var exphbs = require("express-handlebars");
 
@@ -36,6 +37,7 @@ app.use(express.static("public"));
 
 // Connect to the Mongo DB
 // If deployed, use the deployed database. Otherwise use the local mongoScraper database
+mongoose.Promise = Promise;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
